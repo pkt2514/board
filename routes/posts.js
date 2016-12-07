@@ -1,6 +1,3 @@
-
-
-
 // routes/posts.js
 
 var express = require("express");
