@@ -4,6 +4,7 @@ var express = require("express");
 var router = express.Router();
 var Post  = require("../models/Post");
 var util = require("../util");
+var User  = require("../models/User");
 
 // Index
 router.get("/", function(req, res){
@@ -17,7 +18,7 @@ router.get("/", function(req, res){
 router.get("/new", function(req, res){
   var post = req.flash("post")[0] || {};
   var errors = req.flash("errors")[0] || {};
-  res.render("posts/new", { post:post, errors:errors });
+  res.render("posts/new", {user:req.user, post:post, errors:errors});
 });
 
 // create

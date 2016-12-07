@@ -39,6 +39,11 @@
       </div>
      </fieldset>
     </div>
+    <% if(isAuthenticated){ %>
+      <div class="float_right">Author: <%= user.name %> </div>
+    <% } else { %>
+      <div class="float_right">Author: not login :) </div>
+    <% } %>
     <div class="buttons">
      <button type="submit" class="btn btn-default">Submit</button>
     </div>
