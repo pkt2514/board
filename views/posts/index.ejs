@@ -1,6 +1,3 @@
-
-
-
 <!-- views/posts/index.ejs -->
 
 <!DOCTYPE html>
@@ -21,8 +18,9 @@
    <table class="table table-striped posts">
     <thead>
      <tr>
-      <th class="title">Title</th>
-      <th class="date">Date</th>
+      <th class="col-md-6">Title</th>
+      <th class="col-md-3">Author</th>
+      <th class="col-md-2">Date</th>
      </tr>
     </thead>
     <tbody>
@@ -33,10 +31,13 @@
      <% } %>
      <% posts.forEach(function(post) { %>
       <tr>
-       <td class="title">
+       <td class="col-md-6">
         <a href="/posts/<%= post._id %>"><div><%= post.title %></div></a>
        </td>
-       <td class="date">
+       <td class="col-md-3">
+        <a href="/posts/<%= post._id %>"><div><%= post.author.name %></div></a>
+       </td>
+       <td class="col-md-2">
         <%= post.createdDate %>
        </td>
       </tr>
