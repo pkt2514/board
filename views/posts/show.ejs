@@ -15,7 +15,7 @@
    <% include ./partials/header %>
 
    <div class="buttons">
-    <a class="btn btn-default" href="/posts">Back</a>
+    <a class="btn btn-default" href="/posts?page=<%=page %>">Back</a>
     <% if(user && user.equals(post.author._id)) { %>
     <a class="btn btn-default" href="/posts/<%= post._id %>/edit">Edit</a>
     <form action="/posts/<%= post._id %>?_method=delete" method="post">

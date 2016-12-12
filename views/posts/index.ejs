@@ -32,18 +32,32 @@
      <% posts.forEach(function(post) { %>
       <tr>
        <td class="col-md-6">
-        <a href="/posts/<%= post._id %>"><div><%= post.title %></div></a>
+        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.title %></div></a>
        </td>
        <td class="col-md-3">
-        <a href="/posts/<%= post._id %>"><div><%= post.author.name %></div></a>
+        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.author.name %></div></a>
        </td>
        <td class="col-md-2">
-        <%= post.createdDate %>
+        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.createdDate %></div></a>
        </td>
       </tr>
      <% }) %>
     </tbody>
    </table>
+   <ul class="pagination pagination-sm">
+   <% var offset = 3; %>
+   <% for(i=1;i<=maxPage;i++){ %>
+    <% if(i<=offset || i>maxPage-offset || (i>=page-(offset-1) && i<=page+(offset-1))){ %>
+     <% if(i != page){ %>
+      <li><a href="/posts?page=<%= i %>"> <%= i %> </a></li>
+     <% } else { %>
+        <li class="active"><a href="/posts?page=<%= i %>"> <%= i %> </a></li>
+     <% } %>
+    <% } else if(i == offset+1 || i == maxPage-offset){ %>
+      <li>...</li>
+     <% } %>
+    <%}%>
+   </ul>
   </div> <!-- container end -->
  </body>
 </html>

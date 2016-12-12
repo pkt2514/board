@@ -8,10 +8,17 @@ var User  = require("../models/User");
 
 // Index
 router.get("/", function(req, res){
+ var page = Math.max(1, req.query.page) > 1 ? parseInt(req.query.page):1;
+ var limit = Math.max(1, req.query.limit) > 1 ? parseInt(req.query.limit):10;
+ Post.count({}, function(err, count) {
+  if(err) return res.json({success:false, message:err});
+  var skip = (page - 1) * limit;
+  var maxPage = Math.ceil(count / limit);
  //Post.find({}, function(err, posts){
- Post.find({}).populate("author").sort('-createdAt').exec(function(err, posts) {
+ Post.find({}).populate("author").sort('-createdAt').skip(skip).limit(limit).exec(function(err, posts) {
   if(err) return res.json(err);
-  res.render("posts/index", {posts:posts});
+  res.render("posts/index", {posts:posts, page:page, maxPage:maxPage});
+  });
  });
 });
 
@@ -39,7 +46,8 @@ router.post("/", function(req, res){
 router.get("/:id", function(req, res){
  Post.findOne({_id:req.params.id}).populate("author").exec(function(err, post) {
   if(err) return res.json(err);
-  res.render("posts/show", {user:req.user, post:post});
+  console.log("req.query.page =" + req.query.page);
+  res.render("posts/show", {user:req.user, page:req.query.page, post:post});
  });
 });
 
