@@ -8,6 +8,12 @@ var User  = require("../models/User");
 
 // Index
 router.get("/", function(req, res){
+ var Counter = require('../models/Counter');
+ var visitorCounter = null;
+ Counter.findOne({name:"visitors"}, function(err, counter) {
+   if(!err) visitorCounter = counter;
+ });
+
  var page = Math.max(1, req.query.page) > 1 ? parseInt(req.query.page):1;
  var limit = Math.max(1, req.query.limit) > 1 ? parseInt(req.query.limit):10;
  Post.count({}, function(err, count) {
@@ -17,7 +23,7 @@ router.get("/", function(req, res){
  //Post.find({}, function(err, posts){
  Post.find({}).populate("author").sort('-createdAt').skip(skip).limit(limit).exec(function(err, posts) {
   if(err) return res.json(err);
-  res.render("posts/index", {posts:posts, page:page, maxPage:maxPage});
+  res.render("posts/index", {user:req.user, posts:posts, page:page, maxPage:maxPage, counter:visitorCounter});
   });
  });
 });
@@ -31,7 +37,7 @@ router.get("/new", function(req, res){
 
 // create
 router.post("/", function(req, res){
- if(req.user != null) {
+ if(req.user !== null) {
   req.body.author = req.user._id;
  }
  Post.create(req.body, function(err, post){
@@ -48,7 +54,6 @@ router.post("/", function(req, res){
 router.get("/:id", function(req, res){
  Post.findOne({_id:req.params.id}).populate("author").exec(function(err, post) {
   if(err) return res.json(err);
-  console.log("req.query.page =" + req.query.page);
   res.render("posts/show", {user:req.user, page:req.query.page, post:post});
  });
 });

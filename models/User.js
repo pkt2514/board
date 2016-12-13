@@ -67,20 +67,20 @@ var user = this;
   }
  }
 
-// update user
-if(!user.isNew){
- if(!user.currentPassword){
-  user.invalidate("currentPassword", "Current Password is required!");
+ // update user
+ if(!user.isNew){
+  if(!user.currentPassword){
+   user.invalidate("currentPassword", "Current Password is required!");
+  }
+  if(user.currentPassword && !bcrypt.compareSync(user.currentPassword, user.originalPassword)){
+   user.invalidate("currentPassword", "Current Password is invalid!");
+  }
+  if(user.newPassword && !passwordRegex.test(user.newPassword)){ // 2-3
+   user.invalidate("newPassword", passwordRegexErrorMessage); // 2-4
+  } else if(user.newPassword !== user.passwordConfirmation) {
+   user.invalidate("passwordConfirmation", "Password Confirmation does not matched!");
+  }
  }
- if(user.currentPassword && !user.authenticate(user.currentPassword, user.originalPassword)){
-  user.invalidate("currentPassword", "Current Password is invalid!");
- }
- if(user.newPassword && !passwordRegex.test(user.newPassword)){
-  user.invalidate("newPassword", passwordRegexErrorMessage);
- } else if(user.newPassword !== user.passwordConfirmation) {
-  user.invalidate("passwordConfirmation", "Password Confirmation does not matched!");
- }
-}
 });
 
 // hash password
