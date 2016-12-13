@@ -31,7 +31,9 @@ router.get("/new", function(req, res){
 
 // create
 router.post("/", function(req, res){
- req.body.author = req.user._id;
+ if(req.user != null) {
+  req.body.author = req.user._id;
+ }
  Post.create(req.body, function(err, post){
   if(err){
    req.flash("post", req.body);
