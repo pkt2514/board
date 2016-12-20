@@ -13,6 +13,7 @@ var app = express();
 // DB setting
 mongoose.connect(process.env.MONGO_DB);
 var db = mongoose.connection;
+
 db.once("open", function(){
  console.log("DB connected");
 });

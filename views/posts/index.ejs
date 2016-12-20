@@ -46,6 +46,34 @@
      <% }) %>
     </tbody>
    </table>
+   <div class="floats">
+       <div class="counter float_left">
+         <% if(counter) { %>
+           Total <%= counter.totalCount %> visitors<br>
+           {today:<%= counter.todayCount %>}
+         <% } %>
+       </div>
+       <div class="search float_right">
+         <form class="checkValidation" action="/posts/" id="search">
+           <select name="searchType">
+             <% var select %>
+             <option value="title,body"
+               <%= search.searchType=="title,body"?select="selected":"" %>>Title+Body</option>
+             <option value="title"
+               <%= search.searchType=="title"?select="selected":"" %>>Title</option>
+             <option value="body"
+               <%= search.searchType=="body"?select="selected":"" %>>Body</option>
+           </select>
+           <input class="cvMinLength" cvMinLength="3"
+             cvMinLenErrTo="#searchError"
+             cvMinLenErrMsg="It should be at least 3 characters"
+             type="text" name="searchText" value="<%= select?search.searchText:"" %>">
+           <button type="submit">search</button>
+           <div class="message" id="searchError"></div>
+         </form>
+       </div>
+     </div>
+
    <div class="col-md-12" align="center">
    <ul class="pagination pagination-sm">
    <% var offset = 3; %>
@@ -61,14 +89,12 @@
      <% } %>
     <%}%>
    </ul>
- </div>
-   <div class="counter">
-     <% if(counter) { %>
-       Total <%= counter.totalCount %> visitors<br>
-       {today:<%= counter.todayCount %>}
-     <% } %>
-   </div>
-  </div> <!-- container end -->
+  </div>
 
+ <footer>
+   <% include ../partials/footer %>
+ </footer>
+ 
+  </div> <!-- container end -->
  </body>
 </html>

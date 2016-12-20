@@ -186,3 +186,28 @@ form .form-group{
  margin-top: 5px;
  margin-bottom: 11px;
 }
+.floats:after{
+  content: "";
+  display: block;
+  clear: both;
+  height: 0;
+  line-height: 0;
+}
+footer{
+  text-align:center;
+  padding: 10px 0;
+}
+.float_left{
+  float:left;
+  margin-right:10px;
+}
+.float_right{
+  float:right;
+  margin-left:10px;
+}
+.pagination{
+  text-align: center;
+}
+.pagination li{
+  display: inline;
+}
