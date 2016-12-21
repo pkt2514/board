@@ -7,6 +7,7 @@ var util = require("../util");
 var User = require("../models/User");
 var Counter = require('../models/Counter');
 var async = require('async');
+var mongoose = require("mongoose");
 
 /*
 // Index
@@ -38,27 +39,47 @@ router.get('/', function(req,res){
   var page = Math.max(1,req.query.page)>1?parseInt(req.query.page):1;
   var limit = Math.max(1,req.query.limit)>1?parseInt(req.query.limit):10;
   var search = createSearch(req.query);
-
+  
   async.waterfall([function(callback){
       Counter.findOne({name:"visitors"}, function (err,counter) {
         if(err) callback(err);
         visitorCounter = counter;
         callback(null);
       });
+    },function(callback) {
+      if(!search.findUser) return callback(null);
+      User.find(search.findUser,function(err,users){
+        if(err) callback(err);
+        var or = [];
+        users.forEach(function(user){
+          or.push({author:mongoose.Types.ObjectId(user._id)});
+        });
+
+        if(search.findPost.$or){
+          search.findPost.$or = search.findPost.$or.concat(or);
+        } else if(or.length>0){
+          search.findPost = {$or:or};
+        }
+        callback(null);
+      });
     },function(callback){
+      if(search.findUser && !search.findPost.$or) return callback(null, null, 0);
       Post.count(search.findPost,function(err,count){
         if(err) callback(err);
         skip = (page-1)*limit;
         maxPage = Math.ceil(count/limit);
         callback(null, skip, maxPage);
+
       });
     },function(skip, maxPage, callback){
+      if(search.findUser && !search.findPost.$or) return callback(null, [], 0);
       Post.find(search.findPost).populate("author").sort('-createdAt').skip(skip).limit(limit).exec(function (err,posts) {
         if(err) callback(err);
-        res.render("posts/index", {user:req.user, posts:posts, page:page, maxPage:maxPage, counter:visitorCounter, search:search});
+        callback(null, posts, maxPage);
       });
-    }],function(err){
+    }],function(err, posts, maxPage){
       if(err) return res.json({success:false, message:err});
+      res.render("posts/index", {user:req.user, posts:posts, page:page, maxPage:maxPage, counter:visitorCounter, search:search});
     });
 }); // index
 
@@ -131,7 +152,7 @@ router.delete("/:id", function(req, res){
 module.exports = router;
 
 function createSearch(queries){
-  var findPost = {};
+  var findPost = {}, findUser = null;
   if(queries.searchType && queries.searchText && queries.searchText.length >= 3){
     var searchTypes = queries.searchType.toLowerCase().split(",");
     var postQueries = [];
@@ -141,8 +162,13 @@ function createSearch(queries){
     if(searchTypes.indexOf("body")>=0){
       postQueries.push({ body : { $regex : new RegExp(queries.searchText, "i") } });
     }
+    if(searchTypes.indexOf("author!")>=0){
+      findUser = { username : queries.searchText };
+    } else if(searchTypes.indexOf("author")>=0){
+      findUser = { username : { $regex : new RegExp(queries.searchText, "i") } };
+    }
     if(postQueries.length > 0) findPost = {$or:postQueries};
   }
   return { searchType:queries.searchType, searchText:queries.searchText,
-    findPost:findPost};
+    findPost:findPost, findUser:findUser };
 }

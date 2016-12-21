@@ -13,7 +13,7 @@
 
    <div class="buttons">
     <% if(user != null) { %>
-    <a class="btn btn-default" href="/posts/new">New</a>
+      <a class="btn btn-default" href="/posts/new">New</a>
     <% } %>
    </div>
 
@@ -37,7 +37,7 @@
         <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.title %></div></a>
        </td>
        <td class="col-md-3">
-        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.author.name %></div></a>
+        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.author.username %></div></a>
        </td>
        <td class="col-md-2">
         <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.createdDate %></div></a>
@@ -63,13 +63,24 @@
                <%= search.searchType=="title"?select="selected":"" %>>Title</option>
              <option value="body"
                <%= search.searchType=="body"?select="selected":"" %>>Body</option>
+             <%if(search.searchType=="author!"){%>
+               <option value="author!"
+               <%= search.searchType=="author!"?select="selected":"" %>>Author</option>
+             <%} else {%>
+               <option value="author"
+              <%= search.searchType=="author"?select="selected":"" %>>Author</option>
+             <%}%>
            </select>
            <input class="cvMinLength" cvMinLength="3"
-             cvMinLenErrTo="#searchError"
-             cvMinLenErrMsg="It should be at least 3 characters"
-             type="text" name="searchText" value="<%= select?search.searchText:"" %>">
-           <button type="submit">search</button>
-           <div class="message" id="searchError"></div>
+                     cvMinLenErrTo="#searchError"
+                     cvMinLenErrMsg="It should be at least 3 characters"
+                     type="text" name="searchText" value="<%= select?search.searchText:"" %>"
+                     <%= search.searchType=="author!"?"disabled":"" %>>
+                   <button type="submit" <%= search.searchType=="author!"?"disabled":"" %>>search</button>
+                   <%if(search.searchType){%>
+                     <button type="button" onclick="window.location = '/posts?page=1'">cancel</button>
+                   <%}%>
+                   <div class="message" id="searchError"></div>
          </form>
        </div>
      </div>
@@ -94,7 +105,7 @@
  <footer>
    <% include ../partials/footer %>
  </footer>
- 
+
   </div> <!-- container end -->
  </body>
 </html>
