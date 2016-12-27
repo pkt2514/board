@@ -9,6 +9,7 @@ var flash     = require("connect-flash");
 var session    = require("express-session");
 var passport   = require("./config/passport");
 var app = express();
+var ckStaticsPath = require('node-ckeditor');
 
 // DB setting
 mongoose.connect(process.env.MONGO_DB);
@@ -18,7 +19,7 @@ db.once("open", function(){
  console.log("DB connected");
 });
 db.on("error", function(err){
- console.log("DB ERROR : ", err);
+ console.log("DB ERRnmpOR : ", err);
 });
 
 // Other settings
@@ -31,6 +32,7 @@ app.use(methodOverride("_method"));
 app.use(flash());
 app.use(session({secret:"MySecret"}));
 app.use(countVisitors);
+app.use(express.static(__dirname+"/ckeditor"));
 
 // Passport
 app.use(passport.initialize());

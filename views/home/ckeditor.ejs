@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <% include ../partials/head %>
+        <meta charset="utf-8">
+        <title>A Simple Page with CKEditor</title>
+        <!-- Make sure the path to CKEditor is correct. -->
+        <script src="../ckeditor.js"></script>
+    </head>
+    <body>
+        <% include ../partials/nav %>
+        <div class="container home home-about">
+          <h1>CKEditor</h1>
+          <P>이 사이트는 <a href="http://ckeditor.com/"  target="_blank">http://ckeditor.com/</a>
+            연습페이지!</p>
+            <form>
+                <textarea name="editor1" id="editor1" rows="10" cols="80">
+                    This is my textarea to be replaced with CKEditor.
+                </textarea>
+                <script>
+                    // Replace the <textarea id="editor1"> with a CKEditor
+                    // instance, using default configuration.
+                    CKEDITOR.replace(
+                     'editor1',
+                     {
+                       toolbar : 'Basic',
+                       filebrowserImageUploadUrl : '/uploader',
+                       width : '100%',
+                       height : '200%'
+                     }
+                     );
+                </script>
+            </form>
+          </div>
+    </body>
+</html>

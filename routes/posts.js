@@ -181,13 +181,9 @@ router.delete("/:id", function(req, res){
 router.post('/:id/comments', function(req,res){
   var newComment = req.body.comment;
   newComment.author = req.user._id;
-  console.log("1-1");
   Post.update({_id:req.params.id},{$push:{comments:newComment}},function(err,post){
-    console.log("1-2");
     if(err) return res.json({success:false, message:err});
-    console.log("1-3");
     res.redirect('/posts/'+req.params.id+"?"+req._parsedUrl.query);
-    console.log("1-4");
   });
 }); //create a comment
 router.delete('/:postId/comments/:commentId', function(req,res){
