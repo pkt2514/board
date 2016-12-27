@@ -20,8 +20,10 @@
    <table class="table table-striped posts">
     <thead>
      <tr>
-      <th class="col-md-6">Title</th>
-      <th class="col-md-3">Author</th>
+      <th class="col-md-1">Num</th>
+      <th class="col-md-5">Title</th>
+      <th class="col-md-1">Views</th>
+      <th class="col-md-2">Author</th>
       <th class="col-md-2">Date</th>
      </tr>
     </thead>
@@ -33,10 +35,18 @@
      <% } %>
      <% posts.forEach(function(post) { %>
       <tr>
-       <td class="col-md-6">
-        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.title %></div></a>
+       <td class="col-md-1">
+         <div><%= post.numId %></div></a>
        </td>
-       <td class="col-md-3">
+       <td class="col-md-5">
+         <!-- <td class="highlight" data-highlight="<%= search.highlight.title %>"> -->
+        <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.title %> <span class="comments">(<%=post.comments.length %>)</span></div></a>
+         <!-- </td> -->
+       </td>
+       <td class="col-md-1">
+         <div><%= post.views %></div></a>
+       </td>
+       <td class="col-md-2">
         <a href="/posts/<%= post._id %>?page=<%= page %>"><div><%= post.author.username %></div></a>
        </td>
        <td class="col-md-2">

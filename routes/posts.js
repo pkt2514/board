@@ -39,7 +39,7 @@ router.get('/', function(req,res){
   var page = Math.max(1,req.query.page)>1?parseInt(req.query.page):1;
   var limit = Math.max(1,req.query.limit)>1?parseInt(req.query.limit):10;
   var search = createSearch(req.query);
-  
+
   async.waterfall([function(callback){
       Counter.findOne({name:"visitors"}, function (err,counter) {
         if(err) callback(err);
@@ -79,7 +79,7 @@ router.get('/', function(req,res){
       });
     }],function(err, posts, maxPage){
       if(err) return res.json({success:false, message:err});
-      res.render("posts/index", {user:req.user, posts:posts, page:page, maxPage:maxPage, counter:visitorCounter, search:search});
+      res.render("posts/index", {user:req.user, posts:posts, page:page, maxPage:maxPage, counter:visitorCounter, search:search, urlQuery:req._parsedUrl.query});
     });
 }); // index
 
@@ -90,6 +90,7 @@ router.get("/new", function(req, res){
   res.render("posts/new", {user:req.user, post:post, errors:errors});
 });
 
+/*
 // create
 router.post("/", function(req, res){
  if(req.user !== null) {
@@ -104,12 +105,40 @@ router.post("/", function(req, res){
   res.redirect("/posts");
  });
 });
+*/
+router.post('/', function(req,res){
+  async.waterfall([function(callback){
+    Counter.findOne({name:"posts"}, function (err,counter) {
+      if(err) callback(err);
+      if(counter){
+         callback(null, counter);
+      } else {
+        Counter.create({name:"posts",totalCount:0},function(err,counter){
+          if(err) return res.json({success:false, message:err});
+          callback(null, counter);
+        });
+      }
+    });
+  }],function(callback, counter){
+    var newPost = req.body;
+    newPost.author = req.user._id;
+    newPost.numId = counter.totalCount+1;
+    Post.create(req.body,function (err,post) {
+      if(err) return res.json({success:false, message:err});
+      counter.totalCount++;
+      counter.save();
+      res.redirect('/posts');
+    });
+  });
+}); // create
 
 // show
 router.get("/:id", function(req, res){
- Post.findOne({_id:req.params.id}).populate("author").exec(function(err, post) {
+ Post.findOne({_id:req.params.id}).populate(["author", "comments.author"]).exec(function(err, post) {
   if(err) return res.json(err);
-  res.render("posts/show", {user:req.user, page:req.query.page, post:post});
+  post.views++;
+  post.save();
+  res.render("posts/show", {user:req.user, page:req.query.page, post:post, search:createSearch(req.query), urlQuery:req._parsedUrl.query});
  });
 });
 
@@ -149,26 +178,51 @@ router.delete("/:id", function(req, res){
  });
 });
 
+router.post('/:id/comments', function(req,res){
+  var newComment = req.body.comment;
+  newComment.author = req.user._id;
+  console.log("1-1");
+  Post.update({_id:req.params.id},{$push:{comments:newComment}},function(err,post){
+    console.log("1-2");
+    if(err) return res.json({success:false, message:err});
+    console.log("1-3");
+    res.redirect('/posts/'+req.params.id+"?"+req._parsedUrl.query);
+    console.log("1-4");
+  });
+}); //create a comment
+router.delete('/:postId/comments/:commentId', function(req,res){
+  Post.update({_id:req.params.postId},{$pull:{comments:{_id:req.params.commentId}}},
+    function(err,post){
+      if(err) return res.json({success:false, message:err});
+      res.redirect('/posts/'+req.params.postId+"?"+
+                   req._parsedUrl.query.replace(/_method=(.*?)(&|$)/ig,""));
+  });
+}); //destroy a comment
+
 module.exports = router;
 
 function createSearch(queries){
-  var findPost = {}, findUser = null;
+  var findPost = {}, findUser = null, highlight = {};
   if(queries.searchType && queries.searchText && queries.searchText.length >= 3){
     var searchTypes = queries.searchType.toLowerCase().split(",");
     var postQueries = [];
     if(searchTypes.indexOf("title")>=0){
       postQueries.push({ title : { $regex : new RegExp(queries.searchText, "i") } });
+      highlight.title = queries.searchText;
     }
     if(searchTypes.indexOf("body")>=0){
       postQueries.push({ body : { $regex : new RegExp(queries.searchText, "i") } });
+      highlight.body = queries.searchText;
     }
     if(searchTypes.indexOf("author!")>=0){
       findUser = { username : queries.searchText };
+      highlight.author = queries.searchText;
     } else if(searchTypes.indexOf("author")>=0){
       findUser = { username : { $regex : new RegExp(queries.searchText, "i") } };
+      highlight.author = queries.searchText;
     }
     if(postQueries.length > 0) findPost = {$or:postQueries};
   }
   return { searchType:queries.searchType, searchText:queries.searchText,
-    findPost:findPost, findUser:findUser };
+    findPost:findPost, findUser:findUser, highlight:highlight };
 }
