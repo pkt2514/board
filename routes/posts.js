@@ -84,7 +84,7 @@ router.get('/', function(req,res){
 }); // index
 
 // New
-router.get("/new", function(req, res){
+router.get("/new", util.isLoggedin, function(req, res){
   var post = req.flash("post")[0] || {};
   var errors = req.flash("errors")[0] || {};
   res.render("posts/new", {user:req.user, post:post, errors:errors});
@@ -106,7 +106,7 @@ router.post("/", function(req, res){
  });
 });
 */
-router.post('/', function(req,res){
+router.post('/', util.isLoggedin, function(req,res){
   async.waterfall([function(callback){
     Counter.findOne({name:"posts"}, function (err,counter) {
       if(err) callback(err);
@@ -143,7 +143,7 @@ router.get("/:id", function(req, res){
 });
 
 // edit
-router.get("/:id/edit", function(req, res){
+router.get("/:id/edit", util.isLoggedin, checkPermission, function(req, res){
  var post = req.flash("post")[0];
  var errors = req.flash("errors")[0] || {};
  if(!post){
@@ -158,7 +158,7 @@ router.get("/:id/edit", function(req, res){
 });
 
 // update
-router.put("/:id", function(req, res){
+router.put("/:id", util.isLoggedin, checkPermission, function(req, res){
  req.body.updatedAt = Date.now();
  Post.findOneAndUpdate({_id:req.params.id}, req.body, {runValidators:true}, function(err, post){
   if(err){
@@ -171,7 +171,7 @@ router.put("/:id", function(req, res){
 });
 
 // destroy
-router.delete("/:id", function(req, res){
+router.delete("/:id", util.isLoggedin, checkPermission, function(req, res){
  Post.remove({_id:req.params.id}, function(err){
   if(err) return res.json(err);
   res.redirect("/posts");
@@ -196,6 +196,16 @@ router.delete('/:postId/comments/:commentId', function(req,res){
 }); //destroy a comment
 
 module.exports = router;
+
+// private functions // 1
+function checkPermission(req, res, next){
+ Post.findOne({_id:req.params.id}, function(err, post){
+  if(err) return res.json(err);
+  if(post.author != req.user.id) return util.noPermission(req, res);
+
+  next();
+ });
+}
 
 function createSearch(queries){
   var findPost = {}, findUser = null, highlight = {};

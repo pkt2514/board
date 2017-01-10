@@ -11,8 +11,8 @@
   <div class="container post post-index">
    <% include ./partials/header ﻿%>
 
-   <div class="buttons">
-    <% if(user != null) { %>
+   <div class="buttons">    
+    <% if(isAuthenticated){ %>
       <a class="btn btn-default" href="/posts/new">New</a>
     <% } %>
    </div>
