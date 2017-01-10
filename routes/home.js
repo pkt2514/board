@@ -16,6 +16,7 @@ router.get("/about", function(req, res){
 router.get("/ckeditor", function(req, res){
  res.render("home/ckeditor");
 });
+
 // Login // 2
 router.get("/login", function (req,res) {
  var username = req.flash("username")[0];
@@ -83,4 +84,30 @@ router.post('/uploader', multipartMiddleware, function(req, res) {
     });
 });
 
+/*
+router.post('/uploader', function (req, res) {
+  if (req.query.error) {
+    return res.send('ERROR ' + req.query.error + ': ' + req.query.error_description);
+  }
+
+  fs.readFile(__dirname + '/files/pictureicon.png','utf8', function read(err, data) {
+    if (err) {
+      throw err;
+    }
+    fileupload(data);
+  });
+});
+
+function fileupload(content) {
+  request.put('https://api-content.dropbox.com/1/files_put/auto/proposals/icon.png', {
+    headers: { Authorization: 'Bearer TOKEN-HERE', 'Content-Type': 'image/png'
+  }, body: content}, function optionalCallback (err, httpResponse, bodymsg) {
+    if (err) {
+      return console.log(err);
+    }
+
+    console.log("HERE");
+  });
+}
+*/
 module.exports = router;
